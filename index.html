@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caio &amp; Aline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&amp;family=Cinzel:wght@400;600&amp;family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 1.8s ease-in-out;
+      pointer-events: none;
+    }
+
+    .scene.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ----------------------------------
+       CENA 1: FOTO 1 & REVELAÇÃO LATERAIS
+       ---------------------------------- */
+    #s1 {
+      overflow: hidden;
+    }
+
+    .s1-img-wrap {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: scale(1);
+      transition: transform 6s ease-out;
+    }
+
+    .s1-img-wrap.zoom-subtle {
+      transform: scale(1.02); /* Zoom de apenas 2% */
+    }
+
+    .s1-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* As cortinas laterais que se abrem para revelar */
+    .curtain {
+      position: absolute;
+      top: 0;
+      width: 50.5%;
+      height: 100%;
+      background: #000;
+      z-index: 2;
+      transition: transform 2.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .curtain.left { left: 0; }
+    .curtain.right { right: 0; }
+
+    .curtain.open-left { transform: translateX(-100%); }
+    .curtain.open-right { transform: translateX(100%); }
+
+    .overlay-dark {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 3;
+    }
+
+    .txt-c1 {
+      position: absolute;
+      z-index: 4;
+      text-align: center;
+      color: #fff;
+    }
+
+    .txt-c1 h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 80px;
+      line-height: 1.1;
+      font-weight: 400;
+      text-shadow: 0 2px 15px rgba(0,0,0,0.8);
+      opacity: 0;
+      transform: translateY(15px);
+      transition: all 1.2s ease-out;
+    }
+
+    .txt-c1 h1 span {
+      display: block;
+      font-size: 50px;
+      margin: 2px 0;
+    }
+
+    .txt-c1 h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 28px;
+      letter-spacing: 12px;
+      margin-top: 25px;
+      font-weight: 400;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+      opacity: 0;
+      transform: translateY(15px);
+      transition: all 1.2s ease-out;
+    }
+
+    .txt-c1 .show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ----------------------------------
+       CENA 2: FOTO 2 & DATA DIGITADA
+       ---------------------------------- */
+    #s2 img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .date-card {
+      position: absolute;
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 45px;
+      border-radius: 20px;
+     
+    }
+
+    .date-card.show-card {
+      opacity: 1;
+    }
+
+    .date-card.move-up {
+      transform: translateY(-20px); /* Sobe 20px */
+    }
+
+    #data-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 85px;
+      color: #ffffff;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: scale(1);
+      transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Efeito de crescer 12% e respirar */
+    #data-text.pulse {
+      transform: scale(1.12);
+    }
+
+    #reserve-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      color: #ffffff;
+      letter-spacing: 4px;
+      font-weight: 300;
+      font-style: italic;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+      margin-top: 10px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 1s ease-out;
+    }
+
+    #reserve-text.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ----------------------------------
+       CENA 3: TELA FINAL (PAPEL TERRACOTA)
+       ---------------------------------- */
+    #s3 {
+      background-color: #F7F2EC;
+      /* Textura suave de papel */
+      background-image: radial-gradient(#e2d9cf 1px, transparent 0);
+      background-size: 24px 24px;
+      color: #4E3A34;
+      flex-direction: column;
+      padding: 30px;
+      text-align: center;
+    }
+
+    /* Marca d'água de folhagem terracota no canto superior esquerdo */
+    .foliage-watermark {
+      position: absolute;
+      top: -20px;
+      left: -20px;
+      width: 260px;
+      height: 260px;
+      opacity: 0.18; /* Bem clarinha */
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .s3-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #s3 h3 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 68px;
+      color: #B65E43; /* Terracota */
+      margin-bottom: 5px;
+      font-weight: 400;
+    }
+
+    #s3 p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      letter-spacing: 1px;
+      color: #5a453f;
+      margin-bottom: 25px;
+    }
+
+    .qr-code {
+      width: 200px;
+      height: 200px;
+      border-radius: 16px;
+      background: #fff;
+      padding: 12px;
+      box-shadow: 0 8px 20px rgba(182, 94, 67, 0.12);
+      border: 1px solid rgba(182, 94, 67, 0.2);
+    }
+
+    /* Botão Terracota com brilho dourado no hover/touch */
+    .btn-terracota {
+      margin-top: 30px;
+      background-color: #B65E43;
+      color: #ffffff;
+      padding: 16px 36px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 15px rgba(182, 94, 67, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+    }
+
+    /* Efeito de brilho dourado ao passar o dedo ou mouse */
+    .btn-terracota::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 215, 0, 0.4),
+        transparent
+      );
+      transition: left 0.75s ease;
+    }
+
+    .btn-terracota:hover::before,
+    .btn-terracota:active::before {
+      left: 100%;
+    }
+
+    .btn-terracota:hover,
+    .btn-terracota:active {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(182, 94, 67, 0.4), 0 0 15px rgba(212, 175, 55, 0.5);
+    }
+  </style>
+ </head>
+ <body>
+
+  <section id="s1" class="scene">
+    <div class="curtain left" id="cLeft"></div>
+    <div class="curtain right" id="cRight"></div>
+    <div class="s1-img-wrap" id="imgWrap1">
+      <img src="foto1.jpg" alt="Caio e Aline">
+      <div class="overlay-dark"></div>
+    </div>
+    <div class="txt-c1">
+      <h1 id="names">Caio &amp; Aline</h1>
+      <h2 id="convidam">CONVIDAM</h2>
+    </div>
+  </section>
+
+  <section id="s2" class="scene">
+    <img src="foto2.jpg" alt="Foto Casal">
+    <div class="overlay-dark"></div>
+    
+    <div class="date-card" id="dateCard">
+      <div id="data-text"></div>
+      <div id="reserve-text">RESERVE ESTA DATA</div>
+    </div>
+  </section>
+
+  <section id="s3" class="scene">
+    <svg class="foliage-watermark" viewBox="0 0 100 100" fill="#B65E43">
+      <path d="M10,10 Q30,60 80,80 Q30,40 10,10 Z" />
+      <path d="M10,10 Q50,30 90,20 Q40,30 10,10 Z" />
+      <path d="M20,25 Q45,50 70,60" stroke="#B65E43" stroke-width="2" fill="none" />
+      <circle cx="70" cy="60" r="3" />
+      <circle cx="80" cy="80" r="4" />
+      <circle cx="90" cy="20" r="3" />
+    </svg>
+
+    <div class="s3-content">
+      <h3>Esperamos você!</h3>
+      <p>Confirme sua presença</p>
+      <img src="qrcode.png" alt="QR Code" class="qr-code">
+      <a href="https://wa.me/5514997633443" class="btn-terracota">Confirmar pelo WhatsApp</a>
+    </div>
+  </section>
+
+  <script>
+    // Utilitário de tempo
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
+    async function runInvitationSequence() {
+      // 1. Tela preta / Silêncio (0.8s)
+      await delay(800);
+
+      // Ativa a Cena 1
+      s1.classList.add('active');
+
+      // 2. As cortinas laterais revelam a foto bem devagar
+      cLeft.classList.add('open-left');
+      cRight.classList.add('open-right');
+      
+      // Quando termina a abertura, aplica o zoom de 2% (imperceptível)
+      await delay(2800);
+      imgWrap1.classList.add('zoom-subtle');
+
+      // 3. Surge o nome em caligrafia
+      await delay(400);
+      names.classList.add('show');
+
+      // 4. Meio segundo depois... "CONVIDAM" em Cinzel
+      await delay(900);
+      convidam.classList.add('show');
+
+      // 5. Permanece em exibição e depois desaparece suavemente (Fade)
+      await delay(3500);
+      s1.classList.remove('active');
+
+      // 6. Segunda foto entra lentamente sem texto (espera fade concluir)
+      await delay(1800);
+      s2.classList.add('active');
+
+      // Foto fica sozinha por uns 2 segundos
+      await delay(2000);
+
+      // Exibe o card com vidro fosco discreto
+      dateCard.classList.add('show-card');
+
+      // 7. Efeito de escrita da data a cada 400ms
+      const dateSteps = [
+        "07",
+        "07 •",
+        "07 • 08",
+        "07 • 08 •",
+        "07 • 08 • 2026"
+      ];
+
+      const dataEl = document.getElementById('data-text');
+      for (let step of dateSteps) {
+        dataEl.innerHTML = step;
+        await delay(200);
+      }
+
+      // 8. A data cresce 12%, respira e volta
+      await delay(200);
+      dataEl.classList.add('pulse');
+      await delay(100);
+      dataEl.classList.remove('pulse');
+
+      // 9. A data sobe 20px e aparece "RESERVE ESTA DATA" embaixo
+      await delay(400);
+      dateCard.classList.add('move-up');
+      document.getElementById('reserve-text').classList.add('show');
+
+      // 10. Tempo para curtir a tela 2 e transição suave por Fade para a Tela Final
+      await delay(4000);
+      s2.classList.remove('active');
+
+      // 11. Tela Final (Fundo creme + Papel + Terracota)
+      await delay(1800);
+      s3.classList.add('active');
+    }
+
+    // Inicia a experiência ao carregar a página
+    window.addEventListener('DOMContentLoaded', runInvitationSequence);
+  </script>
+ </body>
+</html>
